@@ -1,35 +1,7 @@
-import os
-from random import choice, sample
-
-from game_data import data
 from title_logo import title, vs
-
-
-# DEFINE FUNCTIONS
-def clear():
-    os.system("clear")
-
-
-def print_title_and_initial_options():
-    print(title + "\n")
-    print(f"A: {option_a['name']}, a {option_a['description']}, from {option_a['country']}.")
-    print(vs)
-    print(f"B: {option_b['name']}, a {option_b['description']}, from {option_b['country']}.")
-
-
-def select_first_cases():
-    cases = sample(data, 2)
-    return cases
-
-
-def select_new_case():
-    new_option = choice(data)
-    return new_option
-
-
-def determine_followers(data1, data2):
-    max_followers = max([data1["follower_count"], data2["follower_count"]])
-    return max_followers  # how to determine option from this number
+from time import sleep
+from game_functions import clear, select_first_cases, select_new_case, title_and_initial_options_displayed
+# import module, file consisting functions used in this program.
 
 
 # VARIABLE DECLARATIONS
@@ -37,28 +9,38 @@ game = True
 
 # MAIN LOGIC
 while game:
-    correct_answer = " "
-    option_a, option_b = select_first_cases()
+    guess_count = 0
+    correct_answer = True
+    option_a, option_b = select_first_cases()  # returning two different data.
 
     while correct_answer:  # could change this block into recursive function
-        answer_count = 0
-        print_title_and_initial_options()
-
+        title_and_initial_options_displayed(option_a, option_b)  # displaying title and printing information
+        # about particular data
         answer = input("Who has more followers A or B: ").lower()
-        result = determine_followers(option_a, option_b)
-        if (option_a["follower_count"] == result) and (answer == "a"):  # if answer is correct continue playing setting
-            # option A to correct answer, else you lose
-            answer_count += 1
-            option_b = select_new_case()  # select new case to compare
-        elif (option_b["follower_count"] == result) and (answer == "b"):
-            answer_count += 1
-            option_a = option_b
-            option_b = select_new_case()  # select new case to compare
+        while answer not in ["a", "b"]:
+            answer = input("Invalid input. Please type 'A' or 'B': ").lower()
 
-    print(f"You guessed correctly: {answer_count} times.")
-    play_again = input("\nWould you like to play again? Type 'y' to play again, type 'n' to quit. ")
+        if (option_a["follower_count"] < option_b["follower_count"]) and (answer == "b"):
+            option_a = option_b
+            option_b = select_new_case()
+        elif (option_b["follower_count"] < option_a["follower_count"]) and (answer == "a"):
+            option_b = select_new_case()
+        else:
+            break
+
+        while option_b == option_a:  # checking if option b is equal to option a. Setting new option b until
+            # it is no longer equal to option a.
+            option_b = select_new_case()
+
+        # this two lines of code always execute when guess is correct.
+        guess_count += 1  # adding additional score if guess is correct
+        print(f"You're right! Your current score is {guess_count}.")  # displaying current score
+        clear()
+
+    clear()
+    print(f"Sorry, you're wrong. YOUR FINAL SCORE: {guess_count}.")
+    play_again = input("\nWould you like to play again? Type 'y' to play again, type 'n' to quit. ").lower()
     if play_again != 'y':
         game = False
-    clear()
 
-print("Thank you for playing 'HigherLower' game!")
+print("\nThank you for playing 'HigherLower' game!")
